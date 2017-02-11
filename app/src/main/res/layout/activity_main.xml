@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="sabm.crashandcall.Main">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Hello World!"
+        android:id="@+id/textView" />
+
+
+    <ProgressBar
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/CallingBar1"
+        android:max="100"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="25dp" />
+
+    <TextView
+        android:text="xyz"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/xyz"
+        android:layout_above="@+id/xyz_max"
+        android:layout_alignParentStart="true" />
+
+    <SeekBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/sensity_speed"
+        android:max="500"
+        android:layout_above="@+id/seek_view_x"
+        android:layout_alignParentStart="true" />
+
+    <SeekBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/sensity_x"
+        android:max="500"
+        android:layout_above="@+id/seek_view_y"
+        android:layout_alignParentStart="true" />
+
+    <SeekBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/sensity_y"
+        android:max="500"
+        android:layout_above="@+id/seek_view_z"
+        android:layout_alignParentStart="true" />
+
+    <SeekBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/sensity_z"
+        android:max="500"
+        android:layout_above="@+id/button"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:text="view_sensity_x"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/sensity_x"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/seek_view_x" />
+
+    <TextView
+        android:text="view_sensity_y"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/sensity_y"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/seek_view_y" />
+
+    <TextView
+        android:text="view_sensity_z"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/sensity_z"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/seek_view_z" />
+
+    <ProgressBar
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/ShakeBar1"
+        android:max="100"
+        android:progress="0"
+        android:layout_marginBottom="13dp"
+        android:layout_above="@+id/xyz"
+        android:layout_alignParentStart="true" />
+
+    <ProgressBar
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/accY"
+        android:max="90"
+        android:layout_below="@+id/accX"
+        android:layout_alignParentStart="true" />
+
+    <ProgressBar
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/accZ"
+        android:max="90"
+        android:layout_below="@+id/accY"
+        android:layout_alignParentStart="true" />
+
+
+    <TextView
+        android:text="Caling?"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/textView_sensor_output"
+        android:layout_alignBaseline="@+id/button"
+        android:layout_alignBottom="@+id/button"
+        android:layout_toEndOf="@+id/seek_view_y" />
+
+    <TextView
+        android:text="view_sensity_speed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/seek_view_speed"
+        android:layout_above="@+id/sensity_speed"
+        android:layout_centerHorizontal="true" />
+
+    <SeekBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/seek_view_speed"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/sensity_shake"
+        android:max="500" />
+
+    <TextView
+        android:text="view_sensity_shake"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/sensity_shake"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/seek_view_shake" />
+
+    <TextView
+        android:text="xyz_max"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/xyz_max"
+        android:paddingBottom="20dp"
+        android:layout_above="@+id/seek_view_shake"
+        android:layout_alignParentStart="true" />
+
+    <ProgressBar
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/accX"
+        android:layout_below="@+id/textView"
+        android:layout_alignParentStart="true" />
+
+    <Button
+        android:text="save bike street"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/button6"
+        android:layout_below="@+id/load_bike_values"
+        android:layout_toStartOf="@+id/textView_Calling"
+        android:onClick="save_profile_bike_street"
+        android:textSize="10sp"
+        android:fontFamily="monospace" />
+
+    <Button
+        android:text="load bike street"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/button7"
+        android:layout_below="@+id/load_bike_values"
+        android:layout_toEndOf="@+id/textView_Calling"
+        android:onClick="load_profile_bike_street"
+        android:textSize="10sp"
+        android:fontFamily="monospace" />
+
+    <Button
+        android:text="Bike Default Profile"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/load_bike_values"
+        android:elevation="1dp"
+        android:onClick="profile_bike"
+        android:layout_below="@+id/accZ"
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        android:text="load bike mtb"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/load_bike_profile_mtb"
+        android:onClick="load_profile_bike_mtb"
+        android:textSize="10sp"
+        android:fontFamily="monospace"
+        android:layout_below="@+id/button7"
+        android:layout_alignStart="@+id/button7" />
+
+    <Button
+        android:text="save bike mtb"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/save_bike_profile_mtb"
+        android:onClick="save_profile_bike_mtb"
+        android:textSize="10sp"
+        android:fontFamily="monospace"
+        android:layout_below="@+id/button6"
+        android:layout_alignEnd="@+id/button6" />
+
+    <TextView
+        android:text="Call"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/textView_Calling"
+        android:layout_above="@+id/CallingBar1"
+        android:layout_centerHorizontal="true" />
+
+    <ProgressBar
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/AccelerationBar"
+        android:max="100"
+        android:layout_above="@+id/ShakeBar1"
+        android:layout_alignParentStart="true" />
+
+    <Button
+        android:text="Reset"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/button"
+        android:onClick="ResetCriticalBar"
+        android:layout_above="@+id/textView_Calling"
+        android:layout_alignStart="@+id/seek_view_z" />
+
+
+</RelativeLayout>
