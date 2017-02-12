@@ -21,6 +21,7 @@ import android.view.WindowManager;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 public class Main extends Activity implements SensorEventListener {
@@ -49,6 +50,61 @@ public class Main extends Activity implements SensorEventListener {
         // set Progress from seekbar to manual change TimerToCall
         SeekBar seek_timer_to_call_bar = (SeekBar) findViewById(R.id.seek_timer_to_call);
         seek_timer_to_call_bar.setProgress(TimerToCall_max);
+
+        //// TODO: 12.02.2017 load bike default profile after first start
+
+        // first_run
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        int val = preferences.getInt("first_run",0);
+        if (preferences.getInt("first_run", 0) == 0) {
+            //Toast.makeText(getApplicationContext(), "vlaue is "+accelationSquareRoot, Toast.LENGTH_LONG)
+            Toast.makeText(getApplicationContext(), "first run initial profiles" + " " + String.valueOf(val), Toast.LENGTH_LONG)
+                    .show();
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putInt("first_run", 1); // value to store
+            editor.commit();
+
+            // initialice profiles at first run  (uninstall + reinstall also first run)
+              // street
+            sensity_shake=206;
+            sensity_speed=8;
+            sensity_x=85;
+            sensity_y=83;
+            sensity_z=162;
+            editor.putInt("street_stored_sensity_shake", sensity_shake); // value to store
+            editor.apply();
+            editor.putInt("street_stored_sensity_speed", sensity_speed); // value to store
+            editor.apply();
+            editor.putInt("street_stored_sensity_x", sensity_x); // value to store
+            editor.apply();
+            editor.putInt("street_stored_sensity_y", sensity_y); // value to store
+            editor.apply();
+            editor.putInt("street_stored_sensity_z", sensity_z); // value to store
+            editor.apply();
+              // mtb
+            sensity_shake=312;
+            sensity_speed=15;
+            sensity_x=134;
+            sensity_y=95;
+            sensity_z=183;
+            editor.putInt("mtb_stored_sensity_shake", sensity_shake); // value to store
+            editor.apply();
+            editor.putInt("mtb_stored_sensity_speed", sensity_speed); // value to store
+            editor.commit();
+            editor.putInt("mtb_stored_sensity_x", sensity_x); // value to store
+            editor.commit();
+            editor.putInt("mtb_stored_sensity_y", sensity_y); // value to store
+            editor.commit();
+            editor.putInt("mtb_stored_sensity_z", sensity_z); // value to store
+            editor.commit();
+
+            load_profile_bike();
+
+        } else {
+            Toast.makeText(getApplicationContext(), "load profiles", Toast.LENGTH_LONG)
+                    .show();
+        }
+
     }
 
     @Override
@@ -61,28 +117,33 @@ public class Main extends Activity implements SensorEventListener {
 
 
     //// TODO: 11.02.2017 Variablen aufräumen, sind ein paar zu viel übrig
+
+    // init start values
     int Progress=0;
     int CallProgress=0;
     int TimerToCall=0;
-    int TimerToCall_max=30;  // after alarm activated, wait 30sec until send out a message (1sec=TimerToCall_max=10)
     int ShakeProgress=0;
+    int TimerToCall_start=0;
+    // init sensity values
     int sensity_shake=140;
     int sensity_speed=140;
     int sensity_x=100;
     int sensity_y=100;
     int sensity_z=100;
+    // init max values
     int x_max=0;
     int y_max=0;
     int z_max=0;
     int accelationSquareRoot_max=0;
-    int TimerToCall_start=0;
+    int TimerToCall_max=30;  // after alarm activated, wait 30sec until send out a message (1sec=TimerToCall_max=10)
 
-    public void profile_bike(View view) {
-        sensity_x = 30;
-        sensity_y = 100;
-        sensity_z = 100;
-        sensity_speed = 20;
-        sensity_shake = 100;
+    public void load_profile_bike() {
+        // based on street profile
+        sensity_shake=206;
+        sensity_speed=8;
+        sensity_x=85;
+        sensity_y=83;
+        sensity_z=162;
 
         // set seekbars
         // x
@@ -100,7 +161,10 @@ public class Main extends Activity implements SensorEventListener {
         // shake
         SeekBar seekbar_sensity_shake = (SeekBar) findViewById(R.id.sensity_shake);
         seekbar_sensity_shake.setProgress(sensity_shake);
+    }
 
+    public void profile_bike(View view) {
+        load_profile_bike();
     }
 
     public void save_profile_bike_street(View view) {
@@ -437,7 +501,8 @@ public class Main extends Activity implements SensorEventListener {
                 if (TimerToCall >= TimerToCall_max) {
                     // show CALL text
                     TextView sensor_output2 = (TextView) findViewById(R.id.textView_sensor_output);
-                    sensor_output2.setText("CALL!!!!" + String.valueOf(TimerToCall) + "  of:  " + String.valueOf(TimerToCall_max));
+                    // sensor_output2.setText("CALL!!!!" + String.valueOf(TimerToCall) + "  of:  " + String.valueOf(TimerToCall_max));
+                    sensor_output2.setText("CALL!!!!");
                 }
             } // counter/timer until send a message
 
