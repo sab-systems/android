@@ -198,8 +198,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/load_bike_values"
-        android:elevation="1dp"
-        android:onClick="profile_bike"
+        android:onClick="load_profile_bike_default"
         android:layout_below="@+id/accZ"
         android:layout_centerHorizontal="true" />
 
