@@ -141,7 +141,7 @@ public class Main extends Activity implements SensorEventListener {
     int distance=0;
     int maxdistance=0;
     // init start values
-    private int Progress=0;
+    int Progress=0;
     int CallProgress=0;
     private int TimerToCall=0;
     int ShakeProgress=0;
@@ -396,6 +396,7 @@ public class Main extends Activity implements SensorEventListener {
         float float_y = values[1];
         float float_z = values[2];
 
+        //// TODO: 12.02.2017 Landscape Mode, + needs to switch x,y,z to x=y, y=z, z=x 
         // x,y,z
 
         // Prepare for show on Bar
