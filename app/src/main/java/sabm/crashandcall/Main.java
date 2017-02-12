@@ -396,7 +396,7 @@ public class Main extends Activity implements SensorEventListener {
         float float_y = values[1];
         float float_z = values[2];
 
-        //// TODO: 12.02.2017 Landscape Mode, + needs to switch x,y,z to x=y, y=z, z=x 
+        //// TODO: 12.02.2017 Landscape Mode, + needs to switch x,y,z to x=y, y=z, z=x
         // x,y,z
 
         // Prepare for show on Bar
@@ -507,7 +507,7 @@ public class Main extends Activity implements SensorEventListener {
             if ( maxspeed > sensity_speed || x_max > sensity_x || y_max > sensity_y || z_max > sensity_z || accelationSquareRoot_max > sensity_shake) {
 
                 // Test Alarm
-                // CallAlarm();   // // TODO: 12.02.2017 silent button?
+                CallAlarm();   // // TODO: 12.02.2017 silent button?
 
                 // switch "hello world" color
                 if (color) {
