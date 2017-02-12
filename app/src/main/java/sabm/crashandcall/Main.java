@@ -56,7 +56,7 @@ public class Main extends Activity implements SensorEventListener {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         if (preferences.getInt("first_run", 0) == 0) {
             //Toast.makeText(getApplicationContext(), "vlaue is "+accelationSquareRoot, Toast.LENGTH_LONG)
-            Toast.makeText(getApplicationContext(), "first run initial profiles", Toast.LENGTH_LONG)
+            Toast.makeText(getApplicationContext(), "first run initials profiles", Toast.LENGTH_LONG)
                     .show();
             SharedPreferences.Editor editor = preferences.edit();
             editor.putInt("first_run", 1); // value to store
@@ -131,7 +131,15 @@ public class Main extends Activity implements SensorEventListener {
 
 
     //// TODO: 11.02.2017 Variablen aufräumen, sind ein paar zu viel übrig
-
+    float maxspeed=0;
+    float xlast;
+    float ylast;
+    float zlast;
+    private long lastUpdate2;
+    float float_speed;
+    // distance calculated below, but not used at the momen
+    int distance=0;
+    int maxdistance=0;
     // init start values
     private int Progress=0;
     int CallProgress=0;
@@ -379,15 +387,6 @@ public class Main extends Activity implements SensorEventListener {
         notificationManager.notify(0, mBuilder.build());
     }
 
-    float maxspeed=0;
-    int maxdistance=0;
-    int distance=0;
-    private float xlast;
-    float ylast;
-    float zlast;
-    private long lastUpdate2;
-    private float float_speed;
-    float speed=0;
     private void getAccelerometer(SensorEvent event) {
         long actualTime = event.timestamp;
 
