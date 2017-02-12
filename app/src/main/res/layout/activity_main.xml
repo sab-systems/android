@@ -22,10 +22,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/CallingBar1"
-        android:max="100"
         android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true"
-        android:layout_marginBottom="25dp" />
+        android:layout_marginBottom="25dp"
+        android:max="300" />
 
     <TextView
         android:text="xyz"
@@ -233,15 +233,6 @@
         android:layout_above="@+id/CallingBar1"
         android:layout_centerHorizontal="true" />
 
-    <ProgressBar
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/AccelerationBar"
-        android:max="100"
-        android:layout_above="@+id/ShakeBar1"
-        android:layout_alignParentStart="true" />
-
     <Button
         android:text="Reset"
         android:layout_width="wrap_content"
@@ -250,6 +241,15 @@
         android:onClick="ResetCriticalBar"
         android:layout_above="@+id/textView_Calling"
         android:layout_alignStart="@+id/seek_view_z" />
+
+    <SeekBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/seek_timer_to_call"
+        android:layout_below="@+id/textView_Calling"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="11dp"
+        android:max="2400" />
 
 
 </RelativeLayout>

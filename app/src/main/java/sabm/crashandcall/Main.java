@@ -44,6 +44,11 @@ public class Main extends Activity implements SensorEventListener {
 
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         lastUpdate = System.currentTimeMillis();
+
+        // set inital max value for callingbar
+        // set Progress from seekbar to manual change TimerToCall
+        SeekBar seek_timer_to_call_bar = (SeekBar) findViewById(R.id.seek_timer_to_call);
+        seek_timer_to_call_bar.setProgress(TimerToCall_max);
     }
 
     @Override
@@ -58,7 +63,8 @@ public class Main extends Activity implements SensorEventListener {
     //// TODO: 11.02.2017 Variablen aufräumen, sind ein paar zu viel übrig
     int Progress=0;
     int CallProgress=0;
-    int AccProgress=0;
+    int TimerToCall=0;
+    int TimerToCall_max=30;  // after alarm activated, wait 30sec until send out a message (1sec=TimerToCall_max=10)
     int ShakeProgress=0;
     int sensity_shake=140;
     int sensity_speed=140;
@@ -69,6 +75,7 @@ public class Main extends Activity implements SensorEventListener {
     int y_max=0;
     int z_max=0;
     int accelationSquareRoot_max=0;
+    int TimerToCall_start=0;
 
     public void profile_bike(View view) {
         sensity_x = 30;
@@ -221,11 +228,10 @@ public class Main extends Activity implements SensorEventListener {
 
     public void ResetCriticalBar(View view) {
         Progress = 0;
-        AccProgress = 0;
+        TimerToCall = 0;
+        TimerToCall_start = 0;
         ShakeProgress = 0;
         CallProgress = 0;
-        ProgressBar AccelerationBar1 = (ProgressBar) findViewById(R.id.AccelerationBar);
-        AccelerationBar1.setProgress(AccProgress);
         ProgressBar ShakeBar1 = (ProgressBar) findViewById(R.id.ShakeBar1);
         ShakeBar1.setProgress(ShakeProgress);
         ProgressBar CallingBar1 = (ProgressBar) findViewById(R.id.CallingBar1);
@@ -237,7 +243,21 @@ public class Main extends Activity implements SensorEventListener {
         z_max=0;
         maxspeed = 0;
         accelationSquareRoot_max = 0;
+    }
 
+    public void setTimerToCall() {
+
+        // read seekbar for manually set timer
+        SeekBar seek_timer_to_call_bar = (SeekBar) findViewById(R.id.seek_timer_to_call);
+        TimerToCall_max=seek_timer_to_call_bar.getProgress();
+
+        // increase calling_bar
+        ProgressBar calling_bar = (ProgressBar) findViewById(R.id.CallingBar1);
+        calling_bar.setMax(TimerToCall_max);
+
+        // show TimerToCall
+        TextView show_timer_to_call = (TextView) findViewById(R.id.textView_Calling);
+        show_timer_to_call.setText("Call in " + String.valueOf(TimerToCall_max/10+1) + "sec");
     }
 
 
@@ -315,6 +335,8 @@ public class Main extends Activity implements SensorEventListener {
         long diffTimeSec = (actualTime - lastUpdate2)/100000;
         if (diffTimeSec > 10000) {
 
+            setTimerToCall();
+
             // speed = acceleration
             float_speed = Math.abs((x - xlast) + (y - ylast) + (z - zlast)) / diffTimeSec * 100000;
             int time = (int) diffTimeSec;
@@ -385,16 +407,39 @@ public class Main extends Activity implements SensorEventListener {
 
             // Alarm Critical Acceleration // Base=140
             if ( maxspeed > sensity_speed || x_max > sensity_x || y_max > sensity_y || z_max > sensity_z || accelationSquareRoot_max > sensity_shake) {
-              // Test Alarm
-              CallAlarm();
-              // Test Timer
-                int AccProgressS = AccProgress;
-                AccProgress = AccProgressS + 10;
-                ProgressBar AccelerationBar1 = (ProgressBar) findViewById(R.id.AccelerationBar);
-                AccelerationBar1.setProgress(AccProgress);
-                TextView sensor_output2 = (TextView) findViewById(R.id.textView_sensor_output);
-                sensor_output2.setText("CALL!!!!");
+
+                // Test Alarm
+                // CallAlarm();   // // TODO: 12.02.2017 silent button?
+
+                // switch "hello world" color
+                if (color) {
+                    view.setBackgroundColor(Color.GREEN);
+                } else {
+                    view.setBackgroundColor(Color.RED);
+                }
+                color = !color;
+
+                // trigger to start counter until send a message
+                TimerToCall_start = 1;
+
             }
+
+            // counter/timer until send a message
+            if (TimerToCall_start == 1) {
+                int TimerToCallS = TimerToCall;
+                TimerToCall = TimerToCallS + 10;
+                // increase calling_bar
+                ProgressBar calling_bar = (ProgressBar) findViewById(R.id.CallingBar1);
+                calling_bar.setProgress(TimerToCall);
+
+
+                // wait 30sec until send out a message (30sec/TimerToCall_max)
+                if (TimerToCall >= TimerToCall_max) {
+                    // show CALL text
+                    TextView sensor_output2 = (TextView) findViewById(R.id.textView_sensor_output);
+                    sensor_output2.setText("CALL!!!!" + String.valueOf(TimerToCall) + "  of:  " + String.valueOf(TimerToCall_max));
+                }
+            } // counter/timer until send a message
 
             lastUpdate2 = actualTime;
             xlast = x;
@@ -402,6 +447,7 @@ public class Main extends Activity implements SensorEventListener {
             zlast = z;
 
 
+        /*
         // Alarm Shake detect
         if (accelationSquareRoot >= 500) //
         {
@@ -454,25 +500,15 @@ public class Main extends Activity implements SensorEventListener {
             }
 
         }
+        */
 
         } // if all xxx seconds
 
-        // if comes 20sec quitness after strange shake, it might be an accident
-        if (Progress >= 100) {
-            int CallProgressS = CallProgress;
-            CallProgress = CallProgressS + 10;
-            ProgressBar CallingBar1 = (ProgressBar) findViewById(R.id.CallingBar1);
-            CallingBar1.setProgress(CallProgress);
-        } else {
-            CallProgress = 0;
-            ProgressBar CallingBar1 = (ProgressBar) findViewById(R.id.CallingBar1);
-            CallingBar1.setProgress(CallProgress);
-        }
-    }
+
+    } // getAccelerometer(SensorEvent event)
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
     }
 
     @Override
