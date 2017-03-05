@@ -10,6 +10,10 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Binder;
@@ -50,10 +54,17 @@ import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.appindexing.Thing;
 import com.google.android.gms.common.api.GoogleApiClient;
 
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+
 import java.util.Iterator;
 import java.util.Set;
 
+import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.app.Service.START_STICKY;
+import static android.location.Criteria.NO_REQUIREMENT;
+import static android.location.LocationManager.NETWORK_PROVIDER;
 
 
 public class Main extends Activity implements SensorEventListener {
@@ -385,11 +396,19 @@ public class Main extends Activity implements SensorEventListener {
         EditText messageNumber=(EditText) findViewById(R.id.messageNumber);
 
         String _messageNumber=messageNumber.getText().toString();
-        String messageText = "Hi , Just SMSed to say hello";
+        String messageText = "Hi , Just SMSed to say hello ";
         String sent = "SMS_SENT";
 
+        sendLocationSMS(_messageNumber,null,messageText);
+
+    }
+
+    public void sendLocationSMS(String phoneNumber, Location currentLocation, String messageText) {
+        SmsManager sms = SmsManager.getDefault();
+        StringBuffer smsBody = new StringBuffer();
+
         PendingIntent sentPI = PendingIntent.getBroadcast(this, 0,
-                new Intent(sent), 0);
+                new Intent(messageText), 0);
 
         //--- Toast when the SMS has been sent---
         registerReceiver(new BroadcastReceiver(){
@@ -406,12 +425,32 @@ public class Main extends Activity implements SensorEventListener {
                             Toast.LENGTH_SHORT).show();
                 }
             }
-        }, new IntentFilter(sent));
+        }, new IntentFilter(messageText));
 
 
-        SmsManager sms = SmsManager.getDefault();
-        sms.sendTextMessage(_messageNumber, null, messageText, null, null);
+        LocationManager locationManager = (LocationManager) this
+                .getSystemService(Context.LOCATION_SERVICE);
+        // String provider = LocationManager.NETWORK_PROVIDER;
+        //String provider = locationManager.getBestProvider(NO_REQUIREMENT,true);
+        checkPermission(ACCESS_FINE_LOCATION,1,0);
 
+        // Returns last known location, this is the fastest way to get a location fix.
+        //Location fastLocation = locationManager.getLastKnownLocation("network");
+        Location fastLocation = locationManager.getLastKnownLocation("passive");
+        //Location fastLocation = locationManager.getLastKnownLocation("gps");
+
+        smsBody.append(locationManager.getAllProviders());
+        smsBody.append(" ");
+        smsBody.append(fastLocation);
+        smsBody.append(" ");
+        smsBody.append(messageText);
+        //smsBody.append("http://maps.google.com?q=");
+        smsBody.append("maps.google.com/maps?q=");
+        //smsBody.append(",");
+        //smsBody.append(currentLocation.getLongitude());
+        //sms.sendTextMessage(phoneNumber, null, smsBody.toString(), null, null);
+
+        Toast.makeText(getBaseContext(), smsBody,Toast.LENGTH_LONG).show();
     }
 
 

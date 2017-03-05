@@ -2,8 +2,16 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="sabm.crashandcall">
 
+    <!-- Send SMS: -->
     <uses-permission android:name="android.permission.SEND_SMS"></uses-permission>
     <uses-permission android:name="android.permission.READ_CONTACTS"></uses-permission>
+    <!-- GPS:
+    ACCESS_COARSE_LOCATION – includes permission only for NETWORK_PROVIDER.
+    ACCESS_FINE_LOCATION – includes permission both for NETWORK_PROVIDER and GPS_PROVIDER.
+    -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
