@@ -1,9 +1,19 @@
 package sabm.crashandcall;
 
+import android.app.IntentService;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Binder;
+import android.os.IBinder;
 import android.os.SystemClock;
 import android.os.Bundle;
 
@@ -15,13 +25,35 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.preference.PreferenceManager;
 import android.support.v7.app.NotificationCompat;
+import android.telephony.SmsManager;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager.LoaderCallbacks;
+import android.widget.AdapterView;
+
+
+import android.provider.ContactsContract;
+import android.provider.ContactsContract.CommonDataKinds.Email;
+import android.provider.ContactsContract.CommonDataKinds.Phone;
+
+import com.google.android.gms.appindexing.Action;
+import com.google.android.gms.appindexing.AppIndex;
+import com.google.android.gms.appindexing.Thing;
+import com.google.android.gms.common.api.GoogleApiClient;
+
+import java.util.Iterator;
+import java.util.Set;
+
+import static android.app.Service.START_STICKY;
 
 
 public class Main extends Activity implements SensorEventListener {
@@ -29,8 +61,15 @@ public class Main extends Activity implements SensorEventListener {
     private boolean color = false;
     private View view;
     private long CriticalTimeStart;
+    /**
+     * ATTENTION: This was auto-generated to implement the App Indexing API.
+     * See https://g.co/AppIndexing/AndroidStudio for more information.
+     */
+    private GoogleApiClient client;
 
-    /** Called when the activity is first created. */
+    /**
+     * Called when the activity is first created.
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -55,6 +94,8 @@ public class Main extends Activity implements SensorEventListener {
         // first_run
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         if (preferences.getInt("first_run", 0) == 0) {
+
+
             //Toast.makeText(getApplicationContext(), "vlaue is "+accelationSquareRoot, Toast.LENGTH_LONG)
             Toast.makeText(getApplicationContext(), "first run initials profiles", Toast.LENGTH_LONG)
                     .show();
@@ -63,12 +104,12 @@ public class Main extends Activity implements SensorEventListener {
             editor.apply();
 
             // initialice profiles at first run  (uninstall + reinstall also first run)
-              // street
-            sensity_shake=206;
-            sensity_speed=8;
-            sensity_x=85;
-            sensity_y=83;
-            sensity_z=162;
+            // street
+            sensity_shake = 206;
+            sensity_speed = 8;
+            sensity_x = 85;
+            sensity_y = 83;
+            sensity_z = 162;
             editor.putInt("street_stored_sensity_shake", sensity_shake); // value to store
             editor.apply();
             editor.putInt("street_stored_sensity_speed", sensity_speed); // value to store
@@ -79,12 +120,12 @@ public class Main extends Activity implements SensorEventListener {
             editor.apply();
             editor.putInt("street_stored_sensity_z", sensity_z); // value to store
             editor.apply();
-              // mtb
-            sensity_shake=312;
-            sensity_speed=15;
-            sensity_x=134;
-            sensity_y=95;
-            sensity_z=183;
+            // mtb
+            sensity_shake = 312;
+            sensity_speed = 15;
+            sensity_x = 134;
+            sensity_y = 95;
+            sensity_z = 183;
             editor.putInt("mtb_stored_sensity_shake", sensity_shake); // value to store
             editor.apply();
             editor.putInt("mtb_stored_sensity_speed", sensity_speed); // value to store
@@ -106,7 +147,7 @@ public class Main extends Activity implements SensorEventListener {
             Toast.makeText(getApplicationContext(), "load profile - " + last_used_profile + " -", Toast.LENGTH_LONG)
                     .show();
 
-            if ( last_used_profile.equals("street")) {
+            if (last_used_profile.equals("street")) {
                 // load street
                 profile_bike_street();
             } else if (last_used_profile.equals("mtb")) {
@@ -119,6 +160,9 @@ public class Main extends Activity implements SensorEventListener {
 
         }
 
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
     @Override
@@ -129,44 +173,45 @@ public class Main extends Activity implements SensorEventListener {
 
     }
 
+    // Todo: write logfile
 
     //// TODO: 11.02.2017 Variablen aufräumen, sind ein paar zu viel übrig
-    float maxspeed=0;
+    float maxspeed = 0;
     float xlast;
     float ylast;
     float zlast;
     private long lastUpdate2;
     float float_speed;
     // distance calculated below, but not used at the momen
-    int distance=0;
-    int maxdistance=0;
+    int distance = 0;
+    int maxdistance = 0;
     // init start values
-    int Progress=0;
-    int CallProgress=0;
-    private int TimerToCall=0;
-    int ShakeProgress=0;
-    private int TimerToCall_start=0;
+    int Progress = 0;
+    int CallProgress = 0;
+    private int TimerToCall = 0;
+    int ShakeProgress = 0;
+    private int TimerToCall_start = 0;
     // init sensity values
-    int sensity_shake=140;
-    private int sensity_speed=140;
-    int sensity_x=100;
-    int sensity_y=100;
-    private int sensity_z=100;
+    int sensity_shake = 140;
+    private int sensity_speed = 140;
+    int sensity_x = 100;
+    int sensity_y = 100;
+    private int sensity_z = 100;
     // init max values
-    int x_max=0;
-    int y_max=0;
-    int z_max=0;
-    int accelationSquareRoot_max=0;
-    private int TimerToCall_max=30;  // after alarm activated, wait 30sec until send out a message (1sec=TimerToCall_max=10)
+    int x_max = 0;
+    int y_max = 0;
+    int z_max = 0;
+    int accelationSquareRoot_max = 0;
+    private int TimerToCall_max = 30;  // after alarm activated, wait 30sec until send out a message (1sec=TimerToCall_max=10)
 
     // profile default
     public void profile_bike_default() {
         // based on street profile
-        sensity_shake=206;
-        sensity_speed=8;
-        sensity_x=85;
-        sensity_y=83;
-        sensity_z=162;
+        sensity_shake = 206;
+        sensity_speed = 8;
+        sensity_x = 85;
+        sensity_y = 83;
+        sensity_z = 162;
 
         // set seekbars
         // x
@@ -190,6 +235,7 @@ public class Main extends Activity implements SensorEventListener {
         editor.putString("last_used_profile", "default"); // value to store
         editor.apply();
     }
+
     public void load_profile_bike_default(View view) {
         profile_bike_default();
     }
@@ -225,9 +271,11 @@ public class Main extends Activity implements SensorEventListener {
         editor.apply();
 
     }
+
     public void load_profile_bike_street(View view) {
         profile_bike_street();
     }
+
     public void save_profile_bike_street(View view) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -293,6 +341,7 @@ public class Main extends Activity implements SensorEventListener {
         editor.putString("last_used_profile", "mtb"); // value to store
         editor.apply();
     }
+
     public void save_profile_bike_mtb(View view) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -326,9 +375,171 @@ public class Main extends Activity implements SensorEventListener {
         editor.commit();
 
     }
+
     public void load_profile_bike_mtb(View view) {
         profile_bike_mtb();
     }
+
+    public void sendSMS(View view) {
+        // SMS: https://www.sitepoint.com/how-to-handle-sms-in-android/
+        EditText messageNumber=(EditText) findViewById(R.id.messageNumber);
+
+        String _messageNumber=messageNumber.getText().toString();
+        String messageText = "Hi , Just SMSed to say hello";
+        String sent = "SMS_SENT";
+
+        PendingIntent sentPI = PendingIntent.getBroadcast(this, 0,
+                new Intent(sent), 0);
+
+        //--- Toast when the SMS has been sent---
+        registerReceiver(new BroadcastReceiver(){
+            @Override
+            public void onReceive(Context arg0, Intent arg1) {
+                if(getResultCode() == Activity.RESULT_OK)
+                {
+                    Toast.makeText(getBaseContext(), "SMS sent",
+                            Toast.LENGTH_SHORT).show();
+                }
+                else
+                {
+                    Toast.makeText(getBaseContext(), "SMS could not sent",
+                            Toast.LENGTH_SHORT).show();
+                }
+            }
+        }, new IntentFilter(sent));
+
+
+        SmsManager sms = SmsManager.getDefault();
+        sms.sendTextMessage(_messageNumber, null, messageText, null, null);
+
+    }
+
+
+    // https://code.tutsplus.com/tutorials/android-essentials-using-the-contact-picker--mobile-2017
+    private static final int CONTACT_PICKER_RESULT = 1001;
+    private String DEBUG_TAG = "sab_debug_tab";
+    public void chooseContact(View view) {
+
+        Intent contactPickerIntent = new Intent(Intent.ACTION_PICK,
+                ContactsContract.Contacts.CONTENT_URI);
+        startActivityForResult(contactPickerIntent, CONTACT_PICKER_RESULT);
+    }
+    // Choose eMail
+    protected void onActivityResult_disabled(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK) {
+            switch (requestCode) {
+                case CONTACT_PICKER_RESULT:
+                    // handle contact results
+                    Cursor cursor = null;
+                    String email = "";
+                    try {
+                        Uri result = data.getData();
+                        Log.v(DEBUG_TAG, "Got a contact result: "
+                                + result.toString());
+
+                        // get the contact id from the Uri
+                        String id = result.getLastPathSegment();
+
+                        // query for everything email
+                        cursor = getContentResolver().query(Email.CONTENT_URI,
+                                null, Email.CONTACT_ID + "=?", new String[] { id },
+                                null);
+
+                        int emailIdx = cursor.getColumnIndex(Email.DATA);
+
+                        // let's just get the first email
+                        if (cursor.moveToFirst()) {
+                            email = cursor.getString(emailIdx);
+                            Log.v(DEBUG_TAG, "Got email: " + email);
+                        } else {
+                            Log.w(DEBUG_TAG, "No results");
+                        }
+                    } catch (Exception e) {
+                        Log.e(DEBUG_TAG, "Failed to get email data", e);
+                    } finally {
+                        if (cursor != null) {
+                            cursor.close();
+                        }
+                        EditText emailEntry = (EditText) findViewById(R.id.messageNumber);
+                        emailEntry.setText(email);
+                        if (email.length() == 0) {
+                            Toast.makeText(this, "No email found for contact.",
+                                    Toast.LENGTH_LONG).show();
+                        }
+
+                    }
+
+                    break;
+            }
+
+        } else {
+            // gracefully handle failure
+            Log.w(DEBUG_TAG, "Warning: activity result not ok");
+        }
+    }
+
+    // Choose Number
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK) {
+            switch (requestCode) {
+                case CONTACT_PICKER_RESULT:
+                    // handle contact results
+                    Cursor cursor = null;
+                    String email = "";
+                    String number = "";
+                    String lastName = "";
+                    try {
+                        Uri result = data.getData();
+                        Log.v(DEBUG_TAG, "Got a contact result: "
+                                + result.toString());
+
+                        // get the contact id from the Uri
+                        String id = result.getLastPathSegment();
+
+                        // query
+                        //cursor = getContentResolver().query(
+                        //      ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                        //       null,
+                        //       ContactsContract.CommonDataKinds.Phone._ID
+                        //               + " = ? ", new String[] { id }, null);
+
+                        cursor = getContentResolver().query(Phone.CONTENT_URI,
+                        null, Phone.CONTACT_ID + "=?", new String[] { id },
+                        null);
+
+                        int numberIdx = cursor.getColumnIndex(Phone.DATA);
+
+                        if (cursor.moveToFirst()) {
+                            number = cursor.getString(numberIdx);
+                            // lastName =
+                            // cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.StructuredName.FAMILY_NAME));
+                        } else {
+                            // WE FAILED
+                        }
+                    } catch (Exception e) {
+                        // failed
+                    } finally {
+                        if (cursor != null) {
+                            cursor.close();
+                        } else {
+                        }
+                    }
+                    EditText numberEditText = (EditText) findViewById(R.id.messageNumber);
+                    numberEditText.setText(number);
+                    // EditText lastNameEditText =
+                    // (EditText)findViewById(R.id.last_name);
+                    // lastNameEditText.setText(lastName);
+
+                    break;
+            }
+
+        } else {
+            // gracefully handle failure
+            Log.w(DEBUG_TAG, "Warning: activity result not ok");
+        }
+    }
+
+
 
 
 
@@ -344,9 +555,9 @@ public class Main extends Activity implements SensorEventListener {
         CallingBar1.setProgress(CallProgress);
         TextView sensor_output2 = (TextView) findViewById(R.id.textView_sensor_output);
         sensor_output2.setText("Calling?");
-        x_max=0;
-        y_max=0;
-        z_max=0;
+        x_max = 0;
+        y_max = 0;
+        z_max = 0;
         maxspeed = 0;
         accelationSquareRoot_max = 0;
     }
@@ -355,7 +566,7 @@ public class Main extends Activity implements SensorEventListener {
 
         // read seekbar for manually set timer
         SeekBar seek_timer_to_call_bar = (SeekBar) findViewById(R.id.seek_timer_to_call);
-        TimerToCall_max=seek_timer_to_call_bar.getProgress();
+        TimerToCall_max = seek_timer_to_call_bar.getProgress();
 
         // increase calling_bar
         ProgressBar calling_bar = (ProgressBar) findViewById(R.id.CallingBar1);
@@ -363,12 +574,12 @@ public class Main extends Activity implements SensorEventListener {
 
         // show TimerToCall
         TextView show_timer_to_call = (TextView) findViewById(R.id.textView_Calling);
-        show_timer_to_call.setText("Call in " + String.valueOf(TimerToCall_max/10+1) + "sec");
+        show_timer_to_call.setText("Call in " + String.valueOf(TimerToCall_max / 10 + 1) + "sec");
     }
 
 
     //public void CallAlarm(View view) {
-    public void CallAlarm (){
+    public void CallAlarm() {
         // SOUND notification
         //Define Notification Manager
         NotificationManager notificationManager = (NotificationManager) this.getSystemService(this.NOTIFICATION_SERVICE);
@@ -405,9 +616,15 @@ public class Main extends Activity implements SensorEventListener {
         int z = (int) float_z * 10;
 
         // Betrag x,y,z
-        if (x < 0) { x = x * -1; }
-        if (y < 0) { y = y * -1; }
-        if (z < 0) { z = z * -1; }
+        if (x < 0) {
+            x = x * -1;
+        }
+        if (y < 0) {
+            y = y * -1;
+        }
+        if (z < 0) {
+            z = z * -1;
+        }
 
         ProgressBar accX = (ProgressBar) findViewById(R.id.accX);
         accX.setProgress(x);
@@ -417,9 +634,15 @@ public class Main extends Activity implements SensorEventListener {
         accZ.setProgress(z);
 
         // got x,y,z max
-        if (x > x_max) { x_max = x; }
-        if (y > y_max) { y_max = y; }
-        if (z > z_max) { z_max = z; }
+        if (x > x_max) {
+            x_max = x;
+        }
+        if (y > y_max) {
+            y_max = y;
+        }
+        if (z > z_max) {
+            z_max = z;
+        }
 
 
         //DebugData
@@ -430,7 +653,7 @@ public class Main extends Activity implements SensorEventListener {
 
         // Acceleration Detect
         // per second
-        long diffTimeSec = (actualTime - lastUpdate2)/100000;
+        long diffTimeSec = (actualTime - lastUpdate2) / 100000;
         if (diffTimeSec > 10000) {
 
             setTimerToCall();
@@ -438,20 +661,28 @@ public class Main extends Activity implements SensorEventListener {
             // speed = acceleration
             float_speed = Math.abs((x - xlast) + (y - ylast) + (z - zlast)) / diffTimeSec * 100000;
             int time = (int) diffTimeSec;
-            int speed = (int) float_speed / 100 ;
+            int speed = (int) float_speed / 100;
             int velocity = speed * time;
-            distance = velocity * time + (speed * time^2) / 2;
-            if ( distance < 0 ) { distance = distance * -1;}
-            if ( distance > maxdistance ) { maxdistance = distance;}
+            distance = velocity * time + (speed * time ^ 2) / 2;
+            if (distance < 0) {
+                distance = distance * -1;
+            }
+            if (distance > maxdistance) {
+                maxdistance = distance;
+            }
 
             // remember max speed
-            if ( speed > maxspeed ) {maxspeed = speed;}
+            if (speed > maxspeed) {
+                maxspeed = speed;
+            }
 
             // Shake Detect
             float float_accelationSquareRoot = (x * x + y * y + z * z)
                     / (SensorManager.GRAVITY_EARTH * SensorManager.GRAVITY_EARTH);
             int accelationSquareRoot = (int) float_accelationSquareRoot;
-            if (accelationSquareRoot > accelationSquareRoot_max) { accelationSquareRoot_max = accelationSquareRoot; }
+            if (accelationSquareRoot > accelationSquareRoot_max) {
+                accelationSquareRoot_max = accelationSquareRoot;
+            }
 
             // Show Bars
             // Show x,y,z and accelerationSquareRoot values
@@ -485,26 +716,46 @@ public class Main extends Activity implements SensorEventListener {
             // shake
             TextView view_sensity_shake = (TextView) findViewById(R.id.seek_view_shake);
             view_sensity_shake.setText("sensity shake: " + String.valueOf(sensity_shake) + "       # " + String.valueOf(accelationSquareRoot_max));
-            if (accelationSquareRoot_max > sensity_shake) { view_sensity_shake.setTextColor(Color.RED);} else {view_sensity_shake.setTextColor(Color.GRAY);}
+            if (accelationSquareRoot_max > sensity_shake) {
+                view_sensity_shake.setTextColor(Color.RED);
+            } else {
+                view_sensity_shake.setTextColor(Color.GRAY);
+            }
             // speed
             TextView view_sensity_speed = (TextView) findViewById(R.id.seek_view_speed);
             view_sensity_speed.setText("sensity speed: " + String.valueOf(sensity_speed) + "       # " + String.valueOf(maxspeed));
-            if (maxspeed > sensity_speed) { view_sensity_speed.setTextColor(Color.RED);} else {view_sensity_speed.setTextColor(Color.GRAY);}
+            if (maxspeed > sensity_speed) {
+                view_sensity_speed.setTextColor(Color.RED);
+            } else {
+                view_sensity_speed.setTextColor(Color.GRAY);
+            }
             // x
             TextView view_sensity_x = (TextView) findViewById(R.id.seek_view_x);
             view_sensity_x.setText("sensity x: " + String.valueOf(sensity_x) + "       # " + String.valueOf(x_max));
-            if (x_max > sensity_x) { view_sensity_x.setTextColor(Color.RED);} else {view_sensity_x.setTextColor(Color.GRAY);}
+            if (x_max > sensity_x) {
+                view_sensity_x.setTextColor(Color.RED);
+            } else {
+                view_sensity_x.setTextColor(Color.GRAY);
+            }
             // y
             TextView view_sensity_y = (TextView) findViewById(R.id.seek_view_y);
             view_sensity_y.setText("sensity y: " + String.valueOf(sensity_y) + "       # " + String.valueOf(y_max));
-            if (y_max > sensity_y) { view_sensity_y.setTextColor(Color.RED);} else {view_sensity_y.setTextColor(Color.GRAY);}
+            if (y_max > sensity_y) {
+                view_sensity_y.setTextColor(Color.RED);
+            } else {
+                view_sensity_y.setTextColor(Color.GRAY);
+            }
             // z
             TextView view_sensity_z = (TextView) findViewById(R.id.seek_view_z);
             view_sensity_z.setText("sensity z: " + String.valueOf(sensity_z) + "       # " + String.valueOf(z_max));
-            if (z_max > sensity_z) { view_sensity_z.setTextColor(Color.RED);} else {view_sensity_z.setTextColor(Color.GRAY);}
+            if (z_max > sensity_z) {
+                view_sensity_z.setTextColor(Color.RED);
+            } else {
+                view_sensity_z.setTextColor(Color.GRAY);
+            }
 
             // Alarm Critical Acceleration // Base=140
-            if ( maxspeed > sensity_speed || x_max > sensity_x || y_max > sensity_y || z_max > sensity_z || accelationSquareRoot_max > sensity_shake) {
+            if (maxspeed > sensity_speed || x_max > sensity_x || y_max > sensity_y || z_max > sensity_z || accelationSquareRoot_max > sensity_shake) {
 
                 // Test Alarm
                 CallAlarm();   // // TODO: 12.02.2017 silent button?
@@ -627,5 +878,40 @@ public class Main extends Activity implements SensorEventListener {
         // unregister listener
         super.onPause();
         sensorManager.unregisterListener(this);
+    }
+
+    /**
+     * ATTENTION: This was auto-generated to implement the App Indexing API.
+     * See https://g.co/AppIndexing/AndroidStudio for more information.
+     */
+    public Action getIndexApiAction() {
+        Thing object = new Thing.Builder()
+                .setName("Main Page") // TODO: Define a title for the content shown.
+                // TODO: Make sure this auto-generated URL is correct.
+                .setUrl(Uri.parse("http://[ENTER-YOUR-URL-HERE]"))
+                .build();
+        return new Action.Builder(Action.TYPE_VIEW)
+                .setObject(object)
+                .setActionStatus(Action.STATUS_TYPE_COMPLETED)
+                .build();
+    }
+
+
+        @Override
+    public void onStart() {
+        super.onStart();
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client.connect();
+        AppIndex.AppIndexApi.start(client, getIndexApiAction());
+    }
+    public void onStop() {
+        super.onStop();
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        AppIndex.AppIndexApi.end(client, getIndexApiAction());
+        client.disconnect();
     }
 }

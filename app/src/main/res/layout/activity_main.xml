@@ -250,5 +250,30 @@
         android:layout_marginTop="11dp"
         android:max="2400" />
 
+    <EditText android:id="@+id/messageNumber"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:cursorVisible="true"
+        android:layout_below="@+id/sensity_speed"
+        android:layout_alignParentStart="true"
+        android:text="015115534713" />
+
+    <Button android:id="@+id/sendSMS"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Send SMS"
+        android:layout_below="@+id/messageNumber"
+        android:layout_alignParentStart="true"
+        android:onClick="sendSMS" />
+
+    <Button
+        android:text="choos contact"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/seek_view_z"
+        android:layout_alignEnd="@+id/button"
+        android:id="@+id/button2"
+        android:onClick="chooseContact" />
+
 
 </RelativeLayout>
